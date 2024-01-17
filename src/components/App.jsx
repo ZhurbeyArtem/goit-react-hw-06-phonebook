@@ -1,44 +1,27 @@
+import { useDispatch, useSelector } from 'react-redux';
+
 import ContactsForm from './form/ContactsForm';
-import { useEffect, useState } from 'react';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import { nanoid } from 'nanoid';
 import Filter from './filters/Filter';
 import ContactList from './contacts/ContactList';
+import { actions as contactAction } from '../redux/contacts/contacts.slice';
+import { actions as filterAction } from '../redux/filter/filter.slice';
 import s from 'index.module.css';
 
 export const App = () => {
-  const initilazeState = () => {
-    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (parsedContacts && parsedContacts.length > 0) return parsedContacts;
-    else return [];
-  };
-
-  const [contacts, setContacts] = useState(initilazeState());
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const contacts = useSelector(state => state.contacts);
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
 
   const addUser = (name, phone) => {
-    const isExist = contacts.filter(
-      e =>
-        e.name.toLowerCase() === name.toLowerCase() ||
-        e.number.toLowerCase() === phone.toLowerCase()
-    );
-    if (isExist.length > 0) {
-      Notify.failure(`${name} or ${phone} is already in contacts`);
-      return;
-    }
-
-    const newContact = { id: nanoid(), name, number: phone };
-    setContacts(prevContacts => [...prevContacts, newContact]);
+    dispatch(contactAction.addContact({ name, phone }));
   };
 
   const removeUser = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+    dispatch(contactAction.removeContact(id));
+  };
+
+  const setFilter = val => {
+    dispatch(filterAction.changeFilter(val));
   };
 
   const filteredContacts = () => {
@@ -53,7 +36,7 @@ export const App = () => {
       <ContactsForm addUser={addUser} />
 
       <h2>Contacts</h2>
-      <Filter filterFunc={setFilter} />
+      <Filter filter={filter} filterFunc={setFilter} />
       <ContactList users={filteredContacts()} removeUser={removeUser} />
     </div>
   );
