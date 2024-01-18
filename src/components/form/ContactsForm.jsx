@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { actions as contactAction } from '../../redux/contacts/contacts.slice';
+
 import s from './style.module.css';
 
-const ContactsForm = ({ addUser }) => {
+const ContactsForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
   });
 
+  const dispatch = useDispatch();
+
+
   const handleSubmit = e => {
     e.preventDefault();
     const { name, phone } = formData;
-    addUser(name, phone);
+    dispatch(contactAction.addContact({ name, phone }));
     setFormData({ name: '', phone: '' });
     e.target.reset();
   };

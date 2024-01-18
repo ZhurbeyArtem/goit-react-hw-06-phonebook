@@ -1,11 +1,19 @@
 import React from 'react';
-import s from './style.module.css';
+import { useDispatch } from 'react-redux';
 
-const ContactsItem = ({ name, phone, func, id }) => {
+import s from './style.module.css';
+import { actions as contactAction } from '../../redux/contacts/contacts.slice';
+
+const ContactsItem = ({ name, phone, id }) => {
+  const dispatch = useDispatch();
   return (
     <li>
       {name} {phone}
-      <button className={s.btn} type="button" onClick={() => func(id)}>
+      <button
+        className={s.btn}
+        type="button"
+        onClick={() => dispatch(contactAction.removeContact(id))}
+      >
         remove
       </button>
     </li>
