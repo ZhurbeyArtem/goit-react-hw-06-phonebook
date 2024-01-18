@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { actions as contactAction } from '../../redux/contacts/contacts.slice';
 
 import s from './style.module.css';
+import { getContacts } from '../../redux/contacts/getContacts';
+import { Notify } from 'notiflix';
 
 const ContactsForm = () => {
+  const contacts = useSelector(getContacts);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -12,10 +16,18 @@ const ContactsForm = () => {
 
   const dispatch = useDispatch();
 
-
   const handleSubmit = e => {
     e.preventDefault();
     const { name, phone } = formData;
+    const isExist = contacts.filter(
+      e =>
+        e.name.toLowerCase() === name.toLowerCase() ||
+        e.number.toLowerCase() === phone.toLowerCase()
+    );
+    if (isExist.length > 0) {
+      Notify.failure(`${name} or ${phone} is already in contacts`);
+      return contacts;
+    }
     dispatch(contactAction.addContact({ name, phone }));
     setFormData({ name: '', phone: '' });
     e.target.reset();
